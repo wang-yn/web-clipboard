@@ -11,8 +11,12 @@ const i18n={
         }
     },
     init(){
-        document.getElementById('langEn').onclick=()=>this.setLang('en');
-        document.getElementById('langZh').onclick=()=>this.setLang('zh');
+        const enBtn=document.getElementById('langEn');
+        const zhBtn=document.getElementById('langZh');
+        if(enBtn&&zhBtn){
+            enBtn.onclick=()=>this.setLang('en');
+            zhBtn.onclick=()=>this.setLang('zh');
+        }
         this.updateUI();
     },
     setLang(lang){
@@ -34,12 +38,14 @@ const i18n={
         });
         const enBtn=document.getElementById('langEn');
         const zhBtn=document.getElementById('langZh');
-        enBtn.className='lang-btn '+(this.current==='en'?'btn-blue':'');
-        zhBtn.className='lang-btn '+(this.current==='zh'?'btn-blue':'');
-        enBtn.style.background=this.current==='en'?'#3b82f6':'#f3f4f6';
-        enBtn.style.color=this.current==='en'?'#fff':'#374151';
-        zhBtn.style.background=this.current==='zh'?'#3b82f6':'#f3f4f6';
-        zhBtn.style.color=this.current==='zh'?'#fff':'#374151';
+        if(enBtn&&zhBtn){
+            enBtn.className='lang-btn '+(this.current==='en'?'btn-blue':'');
+            zhBtn.className='lang-btn '+(this.current==='zh'?'btn-blue':'');
+            enBtn.style.background=this.current==='en'?'#3b82f6':'#f3f4f6';
+            enBtn.style.color=this.current==='en'?'#fff':'#374151';
+            zhBtn.style.background=this.current==='zh'?'#3b82f6':'#f3f4f6';
+            zhBtn.style.color=this.current==='zh'?'#fff':'#374151';
+        }
     },
     t(key,...args){
         let text=this.translations[this.current][key]||key;

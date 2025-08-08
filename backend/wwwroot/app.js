@@ -294,4 +294,20 @@ class WebClipboard {
     }
 }
 
-const app = new WebClipboard();
+// Wait for i18n to be ready before initializing app
+let app;
+if (typeof i18n !== 'undefined') {
+    app = new WebClipboard();
+} else {
+    // If i18n is not ready, wait for DOMContentLoaded
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+            app = new WebClipboard();
+        });
+    } else {
+        // Fallback: wait a bit for i18n to initialize
+        setTimeout(() => {
+            app = new WebClipboard();
+        }, 100);
+    }
+}

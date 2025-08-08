@@ -112,19 +112,35 @@ class I18n {
     }
     
     init() {
+        // Only initialize DOM-dependent features if DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                this.initDOM();
+            });
+        } else {
+            this.initDOM();
+        }
+    }
+    
+    initDOM() {
         this.updateLanguageButtons();
         this.translatePage();
         this.bindLanguageButtons();
     }
     
     bindLanguageButtons() {
-        document.getElementById('langEn').addEventListener('click', () => {
-            this.setLanguage('en');
-        });
+        const enBtn = document.getElementById('langEn');
+        const zhBtn = document.getElementById('langZh');
         
-        document.getElementById('langZh').addEventListener('click', () => {
-            this.setLanguage('zh');
-        });
+        if (enBtn && zhBtn) {
+            enBtn.addEventListener('click', () => {
+                this.setLanguage('en');
+            });
+            
+            zhBtn.addEventListener('click', () => {
+                this.setLanguage('zh');
+            });
+        }
     }
     
     setLanguage(lang) {
@@ -141,17 +157,19 @@ class I18n {
         const enBtn = document.getElementById('langEn');
         const zhBtn = document.getElementById('langZh');
         
-        // Reset styles
-        enBtn.className = 'px-3 py-1 rounded text-sm font-medium transition-colors';
-        zhBtn.className = 'px-3 py-1 rounded text-sm font-medium transition-colors';
-        
-        // Highlight current language
-        if (this.currentLang === 'en') {
-            enBtn.className += ' bg-blue-100 text-blue-600';
-            zhBtn.className += ' text-gray-600 hover:text-gray-800';
-        } else {
-            zhBtn.className += ' bg-blue-100 text-blue-600';
-            enBtn.className += ' text-gray-600 hover:text-gray-800';
+        if (enBtn && zhBtn) {
+            // Reset styles
+            enBtn.className = 'px-3 py-1 rounded text-sm font-medium transition-colors';
+            zhBtn.className = 'px-3 py-1 rounded text-sm font-medium transition-colors';
+            
+            // Highlight current language
+            if (this.currentLang === 'en') {
+                enBtn.className += ' bg-blue-100 text-blue-600';
+                zhBtn.className += ' text-gray-600 hover:text-gray-800';
+            } else {
+                zhBtn.className += ' bg-blue-100 text-blue-600';
+                enBtn.className += ' text-gray-600 hover:text-gray-800';
+            }
         }
     }
     
@@ -191,12 +209,5 @@ class I18n {
     }
 }
 
-// Initialize i18n when DOM is ready
-let i18n;
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-        i18n = new I18n();
-    });
-} else {
-    i18n = new I18n();
-}
+// Initialize i18n immediately
+let i18n = new I18n();

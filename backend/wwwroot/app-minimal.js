@@ -213,4 +213,4 @@ class WebClipboard{
     }
 }
 
-const app=new WebClipboard();
+let app;if(typeof i18n!=='undefined'){app=new WebClipboard()}else{if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',()=>{app=new WebClipboard()})}else{setTimeout(()=>{app=new WebClipboard()},100)}}
