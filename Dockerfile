@@ -14,7 +14,7 @@ RUN dotnet publish -c Release -r linux-musl-x64 -o /app \
 FROM mcr.microsoft.com/dotnet/runtime-deps:9.0-alpine AS runtime
 RUN apk add --no-cache icu-libs
 WORKDIR /app
-COPY --from=build /app/backend .
+COPY --from=build /app .
 EXPOSE 8080
 ENV ASPNETCORE_URLS=http://+:8080
 ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1
