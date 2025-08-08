@@ -1,0 +1,19 @@
+# Dockerfile for Linux binary built on Windows
+FROM mcr.microsoft.com/dotnet/runtime-deps:9.0-alpine
+
+# Install minimal dependencies  
+RUN apk add --no-cache icu-libs
+
+WORKDIR /app
+
+# Copy Linux binary built on Windows
+COPY publish-linux/ .
+
+# Make executable
+RUN chmod +x backend
+
+EXPOSE 8080
+ENV ASPNETCORE_URLS=http://+:8080
+ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1
+
+ENTRYPOINT ["./backend"]

@@ -1,0 +1,19 @@
+# Dockerfile for pre-built binaries from Windows
+FROM mcr.microsoft.com/dotnet/runtime-deps:9.0-alpine AS runtime
+
+# Install minimal dependencies
+RUN apk add --no-cache icu-libs
+
+WORKDIR /app
+
+# Copy pre-built application from Windows
+COPY publish/ .
+
+# Make the binary executable
+RUN chmod +x backend
+
+EXPOSE 8080
+ENV ASPNETCORE_URLS=http://+:8080
+ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1
+
+ENTRYPOINT ["./backend"]

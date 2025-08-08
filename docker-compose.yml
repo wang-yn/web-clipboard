@@ -1,0 +1,10 @@
+version: '3.8'
+
+services:
+  web-clipboard:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+    restart: unless-stopped
