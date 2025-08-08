@@ -10,7 +10,12 @@ A modern web-based clipboard application that allows you to store and share text
 - ⌨️ **Easy Input**: Short 4-character IDs easy to type and share
 - ⚡ **High Performance**: Built with .NET 9 AOT for minimal resource usage
 - 🐳 **Docker Ready**: Easy deployment with Docker and Docker Compose
-- 🔒 **Automatic Cleanup**: Content expires after 24 hours
+- 🔒 **Quick Expiration**: Content expires after 10 minutes for memory efficiency
+- 💾 **Smart Storage**: Files stored in temp directory, not memory
+- 🛡️ **Security Protection**: Rate limiting, brute force protection, content validation
+- 📊 **Access Monitoring**: Comprehensive logging and security event tracking
+- 🌐 **Nginx Proxy**: Reverse proxy support with load balancing and SSL termination
+- 🔒 **Production Ready**: HTTPS, security headers, and enterprise deployment options
 
 ## Quick Start
 
@@ -21,11 +26,14 @@ A modern web-based clipboard application that allows you to store and share text
 git clone <repository-url>
 cd web-clipboard
 
-# Start the application
+# Option 1: Simple deployment
 docker-compose up -d
+# Access at http://localhost:8080
 
-# Access the application
-# Open http://localhost:8080 in your browser
+# Option 2: With Nginx proxy (Production)
+./start-with-nginx.bat  # Windows
+./start-with-nginx.sh   # Linux/Mac
+# Access at http://localhost
 ```
 
 ### Manual Setup
@@ -112,6 +120,59 @@ dotnet run
 - Adjust file size limits in the backend configuration
 - Customize UI styling in `index.html` and Tailwind classes
 
+## Security Testing
+
+### Run Security Tests
+```bash
+# Test all security features
+./test-security.bat
+
+# Check security logs
+tail -f backend/security.log
+```
+
+### Security Features
+- **Rate Limiting**: 20 uploads, 100 downloads per minute per IP
+- **File Type Blocking**: Dangerous extensions (.exe, .bat, .js, etc.) blocked
+- **Content Validation**: XSS and injection pattern detection
+- **Brute Force Protection**: Auto-block IPs after 20 failed attempts
+- **Size Limits**: 1MB text, 50MB files maximum
+- **Security Headers**: XSS protection, frame options, content sniffing prevention
+
+See [SECURITY.md](SECURITY.md) for detailed security documentation.
+
+## Nginx Proxy Deployment
+
+### Quick Start with Nginx
+```bash
+# Start with Nginx proxy
+./start-with-nginx.bat  # Windows
+./start-with-nginx.sh   # Linux/Mac
+
+# Test proxy functionality
+./test-nginx-proxy.bat
+
+# Access application
+http://localhost        # Through Nginx proxy
+http://localhost:5000   # Direct backend access
+```
+
+### Features
+- **Reverse Proxy**: Load balancing and failover support
+- **Rate Limiting**: 10 API requests, 5 uploads per second per IP
+- **SSL Termination**: HTTPS support with modern TLS
+- **Security Headers**: XSS protection, frame options, content sniffing prevention
+- **Caching**: Static file caching for better performance
+- **Health Checks**: Automatic backend health monitoring
+
+### Configuration Files
+- `nginx/nginx.conf` - Full production configuration
+- `nginx/nginx-dev.conf` - Development environment
+- `nginx/nginx-docker.conf` - Docker environment
+- `nginx/ssl-example.conf` - HTTPS configuration template
+
+See [NGINX-DEPLOYMENT.md](NGINX-DEPLOYMENT.md) for detailed deployment guide.
+
 ## Development
 
 ### Building for Production
@@ -120,60 +181,60 @@ cd backend
 dotnet publish -c Release -o ../publish
 ```
 
-### Windows本地编译方案 (推荐)
+### Windows Local Build Options (Recommended)
 
-多种构建选项，满足不同需求：
+Multiple build options to meet different needs:
 
-**1. 框架依赖版本 (最小体积):**
+**1. Framework-dependent version (Smallest size):**
 ```bash
 ./build-simple.bat
-# 或使用 PowerShell: ./build-simple.ps1
-# 输出: publish-simple/ (~2-5MB)
-# 需要目标机器安装 .NET 9 运行时
+# Or use PowerShell: ./build-simple.ps1
+# Output: publish-simple/ (~2-5MB)
+# Requires .NET 9 runtime on target machine
 ```
 
-**2. 优化自包含版本 (平衡):**
+**2. Optimized self-contained version (Balanced):**
 ```bash  
 ./build-optimized.bat
-# 输出: publish-optimized/backend.exe (~40-60MB)
-# 包含运行时，无需安装 .NET
+# Output: publish-optimized/backend.exe (~40-60MB)
+# Includes runtime, no need to install .NET
 ```
 
-**3. AOT原生版本 (最快启动):**
+**3. AOT native version (Fastest startup):**
 ```bash
 ./build-win-minimal.bat  
-# 输出: publish-win/backend.exe (~15-25MB)
-# 原生代码，最快启动速度
+# Output: publish-win/backend.exe (~15-25MB)
+# Native code, fastest startup speed
 ```
 
-**4. Linux版本 + Docker:**
+**4. Linux version + Docker:**
 ```bash
 ./build-linux-minimal.bat
 docker build -f Dockerfile.prebuilt-linux -t web-clipboard .
 ```
 
-**5. 一键编译+Docker:**
+**5. One-click build + Docker:**
 ```bash
 ./build-and-docker.bat
 ```
 
-### Linux/Mac本地编译
+### Linux/Mac Local Build
 ```bash
 chmod +x build-minimal.sh
 ./build-minimal.sh
 ```
 
-### 编译优化特性:
-- Assembly trimming (程序集裁剪)
-- Symbol stripping (符号剥离) 
-- Single file deployment (单文件部署)
-- Compression (压缩)
-- Size-optimized IL (尺寸优化)
+### Build Optimization Features:
+- Assembly trimming
+- Symbol stripping 
+- Single file deployment
+- Compression
+- Size-optimized IL
 
-### 预期尺寸:
+### Expected Sizes:
 - Windows AOT: ~15-20MB
 - Linux (no AOT): ~25-35MB  
-- Docker镜像: ~50-70MB
+- Docker image: ~50-70MB
 
 ### Docker Builds
 
@@ -201,8 +262,8 @@ Image sizes:
 
 ## Security Considerations
 
-- Content expires automatically after 24 hours
-- No persistent storage - all data is in memory
+- Content expires automatically after 10 minutes
+- Text stored in memory, files in temp directory
 - IDs are generated using GUIDs for uniqueness
 - No authentication required - suitable for temporary sharing
 - Consider adding authentication for production use with sensitive data
