@@ -54,7 +54,7 @@ class WebClipboard {
     async saveText() {
         const content = document.getElementById('textContent').value.trim();
         if (!content) {
-            this.showMessage('Please enter some text to save', 'error');
+            this.showMessage(i18n.t('please-enter-text'), 'error');
             return;
         }
 
@@ -67,14 +67,14 @@ class WebClipboard {
 
             if (response.ok) {
                 const data = await response.json();
-                this.showMessage(`Text saved! ID: ${data.id}`, 'success');
+                this.showMessage(i18n.t('text-saved', data.id), 'success');
                 this.addToRecent('text', data.id, content.substring(0, 50) + '...', data.expiresAt);
                 document.getElementById('textId').value = data.id;
             } else {
-                throw new Error('Failed to save text');
+                throw new Error(i18n.t('failed-save-text'));
             }
         } catch (error) {
-            this.showMessage('Error saving text: ' + error.message, 'error');
+            this.showMessage(i18n.t('error-saving-text', error.message), 'error');
         }
     }
 
@@ -165,7 +165,7 @@ class WebClipboard {
     async downloadFile() {
         const id = document.getElementById('fileId').value.trim();
         if (!id) {
-            this.showMessage('Please enter a file ID', 'error');
+            this.showMessage(i18n.t('please-enter-file-id'), 'error');
             return;
         }
 
@@ -192,14 +192,14 @@ class WebClipboard {
                 document.body.removeChild(a);
                 window.URL.revokeObjectURL(url);
                 
-                this.showMessage('File downloaded successfully!', 'success');
+                this.showMessage(i18n.t('file-downloaded'), 'success');
             } else if (response.status === 404) {
-                this.showMessage('File not found or expired', 'error');
+                this.showMessage(i18n.t('file-not-found'), 'error');
             } else {
-                throw new Error('Failed to download file');
+                throw new Error(i18n.t('failed-download-file'));
             }
         } catch (error) {
-            this.showMessage('Error downloading file: ' + error.message, 'error');
+            this.showMessage(i18n.t('error-downloading-file', error.message), 'error');
         }
     }
 
@@ -229,7 +229,7 @@ class WebClipboard {
         }
 
         if (validItems.length === 0) {
-            container.innerHTML = '<p class="text-gray-500 text-center text-sm">No recent items</p>';
+            container.innerHTML = `<p class="text-gray-500 text-center text-sm">${i18n.t('no-recent-items')}</p>`;
             return;
         }
 
@@ -241,7 +241,7 @@ class WebClipboard {
                         <span class="font-medium text-sm truncate">${item.description}</span>
                     </div>
                     <div class="text-xs text-gray-500 mt-1">
-                        ID: ${item.id} • Created: ${new Date(item.createdAt).toLocaleString()}
+                        ID: ${item.id} • ${i18n.t('created', new Date(item.createdAt).toLocaleString())}
                     </div>
                 </div>
                 <div class="flex gap-1 ml-2">
@@ -263,9 +263,9 @@ class WebClipboard {
     async copyId(id) {
         try {
             await navigator.clipboard.writeText(id);
-            this.showMessage('ID copied to clipboard!', 'success');
+            this.showMessage(i18n.t('id-copied'), 'success');
         } catch (error) {
-            this.showMessage('Failed to copy ID', 'error');
+            this.showMessage(i18n.t('failed-copy-id'), 'error');
         }
     }
 

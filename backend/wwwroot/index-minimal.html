@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -29,40 +29,50 @@
         .item{display:flex;justify-content:space-between;align-items:center;padding:12px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:6px;margin-bottom:8px;font-size:14px}
         .item-btn{padding:4px 8px;margin-left:4px;border-radius:4px;font-size:12px;cursor:pointer}
         .hidden{display:none}
+        .lang-switcher{display:flex;justify-content:center;margin-bottom:16px}
+        .lang-switcher>div{background:#fff;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.1);padding:8px;display:flex;gap:8px}
+        .lang-btn{padding:6px 12px;border:none;border-radius:4px;font-size:12px;font-weight:500;cursor:pointer;transition:all 0.2s}
         @media(max-width:640px){.container{padding:12px}.btn-group{flex-direction:column}}
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>📋 Web Clipboard</h1>
-        <p style="text-align:center;font-size:12px;color:#666;margin-bottom:24px">⏰ Content expires after 10 minutes</p>
+        <div class="lang-switcher">
+            <div>
+                <button id="langEn" class="lang-btn">English</button>
+                <button id="langZh" class="lang-btn">中文</button>
+            </div>
+        </div>
+        <h1 data-i18n="title">📋 Web Clipboard</h1>
+        <p style="text-align:center;font-size:12px;color:#666;margin-bottom:24px" data-i18n="expiry-notice">⏰ Content expires after 10 minutes</p>
         <div class="grid">
             <div class="card">
-                <h2>📝 Text</h2>
-                <textarea id="textContent" placeholder="Paste or type text..."></textarea>
+                <h2 data-i18n="text-clipboard">📝 Text</h2>
+                <textarea id="textContent" data-i18n-placeholder="text-placeholder"></textarea>
                 <div class="btn-group">
-                    <button id="saveText" class="btn-blue">💾 Save</button>
-                    <button id="copyText" class="btn-green">📋 Copy</button>
+                    <button id="saveText" class="btn-blue" data-i18n="save-text">💾 Save</button>
+                    <button id="copyText" class="btn-green" data-i18n="copy-text">📋 Copy</button>
                 </div>
-                <input type="text" id="textId" placeholder="Enter 4-char ID" maxlength="6" style="text-transform:uppercase">
-                <button id="loadText" class="btn-gray">📥 Load</button>
+                <input type="text" id="textId" data-i18n-placeholder="text-id-placeholder" maxlength="6" style="text-transform:uppercase">
+                <button id="loadText" class="btn-gray" data-i18n="load-text">📥 Load</button>
             </div>
             <div class="card">
-                <h2>📁 File</h2>
+                <h2 data-i18n="file-clipboard">📁 File</h2>
                 <input type="file" id="fileInput" class="hidden">
-                <div id="selectFile" class="file-area">📎 Select file</div>
+                <div id="selectFile" class="file-area" data-i18n="select-file">📎 Select file</div>
                 <div id="selectedFile"></div>
-                <button id="uploadFile" class="btn-blue" disabled>⬆️ Upload</button>
-                <input type="text" id="fileId" placeholder="Enter 4-char ID" maxlength="6" style="margin-top:12px;text-transform:uppercase">
-                <button id="downloadFile" class="btn-gray">📥 Download</button>
+                <button id="uploadFile" class="btn-blue" disabled data-i18n="upload-file">⬆️ Upload</button>
+                <input type="text" id="fileId" data-i18n-placeholder="file-id-placeholder" maxlength="6" style="margin-top:12px;text-transform:uppercase">
+                <button id="downloadFile" class="btn-gray" data-i18n="download-file">📥 Download</button>
             </div>
         </div>
         <div id="statusMessage" class="status"></div>
         <div class="recent card">
-            <h2>📋 Recent</h2>
+            <h2 data-i18n="recent-items">📋 Recent</h2>
             <div id="recentItems"></div>
         </div>
     </div>
+    <script src="i18n-minimal.js"></script>
     <script src="app-minimal.js"></script>
 </body>
 </html>
