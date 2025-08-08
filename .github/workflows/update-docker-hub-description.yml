@@ -1,0 +1,35 @@
+name: Update Docker Hub Description
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - "README.md"
+      - "README_zh.md"
+      - ".github/workflows/update-docker-hub-description.yml"
+  workflow_dispatch:
+
+jobs:
+  update-description:
+    runs-on: ubuntu-latest
+    if: secrets.DOCKERHUB_TOKEN
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Update Docker Hub Description (Standard Image)
+        uses: peter-evans/dockerhub-description@v4
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          repository: ${{ secrets.DOCKERHUB_USERNAME }}/web-clipboard
+          readme-filepath: ./README.md
+
+      - name: Update Docker Hub Description (Minimal Image)
+        uses: peter-evans/dockerhub-description@v4
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          repository: ${{ secrets.DOCKERHUB_USERNAME }}/web-clipboard-minimal
+          readme-filepath: ./README.md

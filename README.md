@@ -19,7 +19,22 @@ A modern web-based clipboard application that allows you to store and share text
 
 ## Quick Start
 
-### Using Docker Compose (Recommended)
+### Using Pre-built Docker Images (Recommended)
+
+```bash
+# Option 1: Standard image from GitHub Container Registry
+docker run -p 8080:8080 ghcr.io/[username]/web-clipboard:latest
+
+# Option 2: Minimal image (smaller size)
+docker run -p 8080:8080 ghcr.io/[username]/web-clipboard-minimal:latest
+
+# Option 3: From Docker Hub (if available)
+docker run -p 8080:8080 [username]/web-clipboard:latest
+
+# Access at http://localhost:8080
+```
+
+### Using Docker Compose (Development)
 
 ```bash
 # Clone or download the project
@@ -275,6 +290,26 @@ Image sizes:
 - Safari 13.1+
 - Edge 80+
 - Mobile browsers with modern JavaScript support
+
+## Automated Builds & Deployment
+
+This project uses GitHub Actions for automated building and publishing:
+
+### Available Images
+- **GitHub Container Registry**:
+  - `ghcr.io/[username]/web-clipboard:latest` - Standard image (~150MB)
+  - `ghcr.io/[username]/web-clipboard-minimal:latest` - Minimal image (~50MB)
+
+### Supported Architectures
+- `linux/amd64` - x86_64 systems
+- `linux/arm64` - ARM64 systems (Raspberry Pi 4+, Apple Silicon, etc.)
+
+### Automated Workflows
+- **CI/CD**: Automatic testing and security scanning on every commit
+- **Docker Publishing**: Multi-architecture images published on push to main
+- **Releases**: Binary builds and images published when creating GitHub releases
+
+See [GITHUB-WORKFLOWS.md](GITHUB-WORKFLOWS.md) for detailed setup instructions.
 
 ## License
 

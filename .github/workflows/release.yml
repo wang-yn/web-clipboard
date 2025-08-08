@@ -1,0 +1,168 @@
+name: Build and Release
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to build'
+        required: true
+        default: 'v1.0.0'
+
+env:
+  REGISTRY: ghcr.io
+  DOCKERHUB_REGISTRY: docker.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build-binaries:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            runtime: linux-x64
+            output-name: web-clipboard-linux-x64
+          - os: ubuntu-latest
+            runtime: linux-arm64
+            output-name: web-clipboard-linux-arm64
+          - os: windows-latest
+            runtime: win-x64
+            output-name: web-clipboard-win-x64.exe
+          - os: macos-latest
+            runtime: osx-x64
+            output-name: web-clipboard-macos-x64
+          - os: macos-latest
+            runtime: osx-arm64
+            output-name: web-clipboard-macos-arm64
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Publish
+        run: |
+          dotnet publish backend/backend.csproj \
+            --configuration Release \
+            --runtime ${{ matrix.runtime }} \
+            --self-contained true \
+            --output ./publish \
+            -p:PublishSingleFile=true \
+            -p:PublishTrimmed=true \
+            -p:TrimMode=partial \
+            -p:EnableCompressionInSingleFile=true
+
+      - name: Create archive (Linux/macOS)
+        if: matrix.os != 'windows-latest'
+        run: |
+          cd publish
+          tar -czf ../${{ matrix.output-name }}.tar.gz *
+
+      - name: Create archive (Windows)
+        if: matrix.os == 'windows-latest'
+        run: |
+          cd publish
+          7z a ../${{ matrix.output-name }}.zip *
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.output-name }}
+          path: ${{ matrix.os == 'windows-latest' && format('{0}.zip', matrix.output-name) || format('{0}.tar.gz', matrix.output-name) }}
+
+  build-docker-images:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+
+    strategy:
+      matrix:
+        include:
+          - dockerfile: Dockerfile
+            image-suffix: ""
+            description: "Standard Docker image with full .NET runtime"
+          - dockerfile: Dockerfile.minimal
+            image-suffix: "-minimal"
+            description: "Minimal Docker image with distroless base"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Log in to Docker Hub (optional)
+        if: secrets.DOCKERHUB_TOKEN
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.DOCKERHUB_REGISTRY }}
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}${{ matrix.image-suffix }}
+            ${{ secrets.DOCKERHUB_TOKEN && format('{0}/{1}{2}', env.DOCKERHUB_REGISTRY, github.repository, matrix.image-suffix) || '' }}
+          tags: |
+            type=ref,event=branch
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=raw,value=latest
+
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ${{ matrix.dockerfile }}
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Generate artifact attestation
+        uses: actions/attest-build-provenance@v1
+        with:
+          subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}${{ matrix.image-suffix }}
+          subject-digest: ${{ steps.build-docker-images.outputs.digest }}
+          push-to-registry: true
+
+  upload-to-release:
+    if: github.event_name == 'release'
+    needs: build-binaries
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ./artifacts
+
+      - name: Upload release assets
+        uses: softprops/action-gh-release@v1
+        with:
+          files: ./artifacts/**/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
