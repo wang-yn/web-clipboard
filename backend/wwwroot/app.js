@@ -294,20 +294,15 @@ class WebClipboard {
     }
 }
 
-// Wait for i18n to be ready before initializing app
+// Wait for both DOM and i18n to be ready
 let app;
-if (typeof i18n !== 'undefined') {
-    app = new WebClipboard();
-} else {
-    // If i18n is not ready, wait for DOMContentLoaded
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', () => {
-            app = new WebClipboard();
-        });
+function initApp() {
+    if (typeof i18n !== 'undefined' && document.readyState !== 'loading') {
+        app = new WebClipboard();
     } else {
-        // Fallback: wait a bit for i18n to initialize
-        setTimeout(() => {
-            app = new WebClipboard();
-        }, 100);
+        // Wait a bit more
+        setTimeout(initApp, 10);
     }
 }
+
+initApp();

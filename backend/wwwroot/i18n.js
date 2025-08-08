@@ -1,6 +1,5 @@
 class I18n {
     constructor() {
-        this.currentLang = this.detectLanguage();
         this.translations = {
             en: {
                 'title': 'Web Clipboard',
@@ -92,6 +91,7 @@ class I18n {
             }
         };
         
+        this.currentLang = this.detectLanguage();
         this.init();
     }
     
